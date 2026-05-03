@@ -5,7 +5,6 @@ from langchain.tools import tool
 
 BASE_URL = "http://localhost:3001"
 
-@tool
 def authenticate(email: str, password: str) -> str:
     """Authenticate with Form.io admin and return the JWT token."""
     url = f"{BASE_URL}/admin/login"
@@ -19,20 +18,16 @@ def authenticate(email: str, password: str) -> str:
         if token:
             return token
         else:
-            raise Exception("Authentication succeeded but no token returned.")
+            return "Authentication succeeded but no token returned."
     else:
-        raise Exception(f"Authentication failed: {response.status_code} - {response.text}")
+        return f"Authentication failed: {response.status_code} - {response.text}"
 
 
 @tool
-def create_form(token: str, title: str, name: str, path: str, components: list) -> dict:
+def create_form(title: str, name: str, path: str, components: list) -> dict:
     """Create a new form on Form.io via the REST API.
 
-    This function sends a POST request to the Form.io endpoint to register a new form
-    with the specified metadata and component structure.
-
     Args:
-        token (str): JWT authentication token for authorizing the API request.
         title (str): Human-readable title of the form (displayed to users).
         name (str): Machine-readable identifier for the form (used in URLs and API calls).
         path (str): URL-friendly path/slug for accessing the form (e.g., 'my-form').
@@ -63,7 +58,9 @@ def create_form(token: str, title: str, name: str, path: str, components: list) 
         ...     'machineName': 'contactform'
         ... }
     """
-
+    EMAIL = "admin@example.com"
+    PASSWORD = "CHANGEME"
+    token = authenticate(EMAIL, PASSWORD)
     url = f"{BASE_URL}/form"
     headers = {
         "Content-Type": "application/json",
@@ -85,21 +82,53 @@ def create_form(token: str, title: str, name: str, path: str, components: list) 
         form = response.json()
         return form
     else:
-        return traceback.format_exc()
-    
+        return response.text
 
 @tool
-def get_form_data(token: str, form_id: str):
+def update_form(form_id: str, old_form: dict, modified_component: list[dict]):
+    """Update a form's components via API and return the result.
+    
+    Args:
+        form_id: The unique identifier of the form to update.
+        old_form: The original form dictionary (will be mutated).
+        modified_component: The list new component(s) to replace form["components"].
+    
+    Returns:
+        dict: Updated form response if successful.
+        str: Error message if the update request fails.
+    """
+
+    old_form["components"] = modified_component
+    EMAIL = "admin@example.com"
+    PASSWORD = "CHANGEME"
+    token = authenticate(EMAIL, PASSWORD)
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-jwt-token": token,
+    }
+    update_response = requests.put(
+        f"{BASE_URL}/form/{form_id}",
+        json=old_form,
+        headers=headers,
+    )
+
+    if update_response.status_code == 200:
+        updated = update_response.json()
+        return updated
+    else:
+        return f"Update failed: {update_response.status_code} - {update_response.text}"
+
+@tool
+def get_form_data(form_id: str):
     """Retrieve metadata and configuration for a specific form from Form.io.
 
     Args:
-        token (str): JWT authentication token for authorizing the API request.
         form_id (str): Unique identifier of the form.
 
 
     Example:
         >>> form_data = get_form_metadata(
-        ...     token="eyJhbGc...",
         ...     form_id="69f6ff82306......"
         ... )
         ... result = dict: {'_id': '69f6ff82306.........',
@@ -120,6 +149,9 @@ def get_form_data(token: str, form_id: str):
         ... }
 
     """
+    EMAIL = "admin@example.com"
+    PASSWORD = "CHANGEME"
+    token = authenticate(EMAIL, PASSWORD)
 
     headers = {
         "Content-Type": "application/json",
@@ -128,8 +160,28 @@ def get_form_data(token: str, form_id: str):
     response = requests.get(f"{BASE_URL}/form/{form_id}", headers=headers)
 
     if response.status_code != 200:
-        return traceback.format_exc()
+        return response.text
 
     form_data = response.json()
     return form_data
 
+@tool
+def get_created_forms():
+    """
+    This endpoint lists all forms within the project.
+    """
+    EMAIL = "admin@example.com"
+    PASSWORD = "CHANGEME"
+    token = authenticate(EMAIL, PASSWORD)
+    url = f"{BASE_URL}/form"
+    headers = {
+        "Content-Type": "application/json",
+        "x-jwt-token": token,
+    }
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        return response.text
+
+    form_list = response.json()
+    return form_list

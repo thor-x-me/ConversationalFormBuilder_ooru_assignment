@@ -1,29 +1,28 @@
 from langchain_ollama import ChatOllama
-from langchain.messages import SystemMessage
-from typing import Literal
+from langchain_core.messages import SystemMessage, ToolMessage
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 import form_io_tools
+from form_io import get_form_data
+import json
 
 # Augment the LLM with tools
 tools = [form_io_tools.create_form, form_io_tools.get_form_data, form_io_tools.get_created_forms, form_io_tools.update_form]
-tools_by_name = {tool.name: tool for tool in tools}
 
 model = ChatOllama(model="qwen3.5:latest", keep_alive="1h")
 model_with_tools = model.bind_tools(tools)
 
 
-def llm_call(state: dict):
+async def llm_call(state: MessagesState):
     """LLM decides whether to call a tool or not"""
-
     return {
         "messages": [
-            model_with_tools.invoke(
+            await model_with_tools.ainvoke(
                 [
                     SystemMessage(
-                        content="You are a helpful assistant tasked with managing form.io form." \
-                        "Do what the user asks while staying generic." \
-                        "Use meaingful names that can be identified easily within other forms."
+                        content="You are a helpful assistant tasked with managing form.io form."
+                        "Do what the user asks while staying generic."
+                        "Use meaningful names that can be identified easily within other forms."
                     )
                 ]
                 + state["messages"]
@@ -51,24 +50,39 @@ agent_builder.add_edge("llm", END)
 # Compile the agent
 agent = agent_builder.compile()
 
-message = """**Form Information:**
-- **Title:** Name and Mobile Number Collection Form
-- **Machine Name:** nameMobileForm
-- **URL Path:** name-mobile
-- **Form ID:** 69f772f6c4808d5b227f57cc
 
-I can't see any thing in the dropdown of gender box, please fix it.
-"""
-from langchain.messages import HumanMessage
-messages = [HumanMessage(content=message)]
+async def stream_agent(messages):
+    all_messages = []
 
+    async for msg, metadata in agent.astream(
+        {"messages": messages},
+        stream_mode="messages"
+    ):
+        all_messages.append(msg)
 
-for chunk in agent.stream(
-    {"messages": messages},
-    stream_mode="messages",
-    version="v2",
-):
-    if chunk["type"] == "messages":
-        message_chunk, metadata = chunk["data"]
-        if message_chunk.content:
-            print(message_chunk.content, end="", flush=True)
+        # stream tokens
+        if hasattr(msg, "content") and isinstance(msg.content, str):
+            yield json.dumps({
+                "type": "token",
+                "data": msg.content
+            }) + "\n"
+
+    # finding form_id so that version canbe added
+    for msg in reversed(all_messages):
+        if isinstance(msg, ToolMessage) and msg.name == "create_form":
+            content = msg.content
+            
+            if isinstance(content, str):
+                try:
+                    content = json.loads(content)
+                except:
+                    continue
+
+            form_id = content.get("_id") or content.get("form_id")
+            break
+    form_data = get_form_data(form_id)
+    
+    yield json.dumps({
+        "type": "form_data",
+        "data": form_data
+    }) + "\n"

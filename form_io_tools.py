@@ -67,20 +67,18 @@ def create_form(title: str, name: str, path: str, components: list) -> dict:
         return response.text
 
 @tool
-def update_form(form_id: str, old_form: dict, modified_component: list[dict]):
+def update_form(form_id: str, modified_form: dict):
     """Update a form's components via API and return the result.
     
     Args:
         form_id: The unique identifier of the form to update.
-        old_form: The original form dictionary (will be mutated).
-        modified_component: The list new component(s) to replace form["components"].
+        modified_form: The  new form with same _id as old form.
     
     Returns:
         dict: Updated form response if successful.
         str: Error message if the update request fails.
     """
-
-    old_form["components"] = modified_component
+    print("Function update_form called ...")
     EMAIL = "admin@example.com"
     PASSWORD = "CHANGEME"
     token = authenticate(EMAIL, PASSWORD)
@@ -91,13 +89,13 @@ def update_form(form_id: str, old_form: dict, modified_component: list[dict]):
     }
     update_response = requests.put(
         f"{BASE_URL}/form/{form_id}",
-        json=old_form,
+        json=modified_form,
         headers=headers,
     )
 
     if update_response.status_code == 200:
-        updated = update_response.json()
-        return updated
+        updated_form = update_response.json()
+        return updated_form
     else:
         return f"Update failed: {update_response.status_code} - {update_response.text}"
 
@@ -131,6 +129,7 @@ def get_form_data(form_id: str):
         ... }
 
     """
+    print("Function get_form_data called ...")
     EMAIL = "admin@example.com"
     PASSWORD = "CHANGEME"
     token = authenticate(EMAIL, PASSWORD)
@@ -152,6 +151,7 @@ def get_created_forms():
     """
     This endpoint lists all forms within the project.
     """
+    print("Function get_created_forms called ...")
     EMAIL = "admin@example.com"
     PASSWORD = "CHANGEME"
     token = authenticate(EMAIL, PASSWORD)

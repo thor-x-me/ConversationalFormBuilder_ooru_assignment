@@ -21,6 +21,7 @@ async def llm_call(state: MessagesState):
                         content="You are a helpful assistant tasked with managing form.io form."
                         "Do what the user asks while staying generic."
                         "Use meaningful names that can be identified easily within other forms."
+                        "If no operation is requested, reply in a friendly tone."
                     )
                 ]
                 + state["messages"]

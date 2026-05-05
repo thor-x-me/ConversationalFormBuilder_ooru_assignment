@@ -89,9 +89,9 @@ def update_versioned_form(form_id, version, updated_form):
     with open("form_data.json") as f:
         data = json.load(f)
 
-    index = next((i for i, item in enumerate(data) if item["id"] == form_id), None)
+    index = next((i for i, item in enumerate(data) if form_id in item.keys()), None)
     if index is not None:
-        data[index][version] = updated_form
+        data[index][form_id][version] = updated_form
 
         with open("form_data.json", "w") as f:
             json.dump(data, f, indent=4)
@@ -103,7 +103,7 @@ def get_versioned_form(form_id, version):
     with open("form_data.json") as f:
         data = json.load(f)
 
-    form = next((item for item in data if item["id"] == form_id), None)
+    form = next((item for item in data if form_id in item.keys()), None)
 
     if form:
         versioned_form = form.get(version)

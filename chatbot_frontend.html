@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form AI Assistant</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f13;
+    --bg2: #16161c;
+    --bg3: #1e1e27;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e8f0;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --accent: #7c6af0;
+    --accent2: #5b4bd4;
+    --accent-light: rgba(124,106,240,0.12);
+    --green: #4ade80;
+    --green-bg: rgba(74,222,128,0.1);
+    --amber: #fbbf24;
+    --amber-bg: rgba(251,191,36,0.1);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.1);
+    --r: 10px;
+    --r2: 14px;
+  }
+  body {
+    font-family: 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    flex-shrink: 0;
+  }
+  header .logo {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  header h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; }
+  header .sub { font-size: 12px; color: var(--text2); margin-left: auto; }
+
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-section label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    display: block;
+    margin-bottom: 8px;
+  }
+  select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: var(--r);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239090a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+  select:focus { border-color: var(--accent); }
+  select option { background: var(--bg3); }
+
+  .btn-new {
+    margin: 16px;
+    padding: 9px 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--r);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  .btn-new:hover { background: var(--accent2); }
+  .btn-new svg { width: 14px; height: 14px; }
+
+  .components-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+  }
+  .components-area::-webkit-scrollbar { width: 4px; }
+  .components-area::-webkit-scrollbar-track { background: transparent; }
+  .components-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .section-header {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text3);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-header .count {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1px 7px;
+    font-size: 10px;
+    color: var(--text2);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text3);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .empty-state .icon { font-size: 28px; margin-bottom: 10px; opacity: 0.5; }
+
+  .component-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: var(--text2);
+    margin: 3px;
+    transition: border-color 0.15s;
+  }
+  .component-tag:hover { border-color: var(--border2); color: var(--text); }
+  .component-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 0; margin: -3px; }
+
+  /* CHAT */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .chat-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chat-header .form-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-light);
+    border: 1px solid rgba(124,106,240,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .chat-header .form-badge.new-mode {
+    background: var(--green-bg);
+    border-color: rgba(74,222,128,0.3);
+    color: var(--green);
+  }
+
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .msg { display: flex; gap: 10px; max-width: 100%; }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .msg.assistant .msg-avatar { background: var(--accent); color: #fff; }
+  .msg.user .msg-avatar { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+
+  .msg-content {
+    max-width: 72%;
+    padding: 10px 14px;
+    border-radius: var(--r2);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .msg.assistant .msg-content {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+  .msg.user .msg-content {
+    background: var(--accent);
+    color: #fff;
+    border-top-right-radius: 4px;
+  }
+  .msg-content p { margin-bottom: 8px; }
+  .msg-content p:last-child { margin-bottom: 0; }
+  .msg-content pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    overflow-x: auto;
+    font-size: 12px;
+    margin: 8px 0;
+  }
+  .msg-content code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--bg3);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .msg-content pre code { background: none; padding: 0; }
+  .msg-content ul, .msg-content ol { padding-left: 20px; margin: 6px 0; }
+  .msg-content li { margin: 3px 0; }
+
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 4px;
+  }
+  .typing-indicator span {
+    width: 6px; height: 6px;
+    background: var(--text3);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* TOOL TOAST */
+  .tool-toasts {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+    pointer-events: none;
+    max-width: 320px;
+  }
+  .tool-toast {
+    border-radius: var(--r);
+    padding: 10px 14px;
+    font-size: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    animation: slideIn 0.2s ease;
+    pointer-events: all;
+    border: 1px solid;
+    backdrop-filter: blur(10px);
+  }
+  .tool-toast.call {
+    background: var(--amber-bg);
+    border-color: rgba(251,191,36,0.25);
+    color: var(--amber);
+  }
+  .tool-toast.result {
+    background: var(--green-bg);
+    border-color: rgba(74,222,128,0.25);
+    color: var(--green);
+  }
+  @keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .toast-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .toast-body .toast-title { font-weight: 600; margin-bottom: 2px; }
+  .toast-body .toast-sub { opacity: 0.7; font-size: 11px; }
+
+  /* INPUT */
+  .input-area {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    flex-shrink: 0;
+  }
+  .input-wrap {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--r2);
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .input-wrap:focus-within { border-color: rgba(124,106,240,0.5); }
+
+  .image-preview-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px 0;
+    flex-wrap: wrap;
+  }
+  .img-thumb {
+    position: relative;
+    width: 56px; height: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border2);
+  }
+  .img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .img-thumb .remove {
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 16px; height: 16px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+    color: #fff;
+    border: none;
+  }
+
+  .text-row {
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    gap: 6px;
+  }
+  textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 14px;
+    resize: none;
+    line-height: 1.5;
+    padding: 4px 6px;
+    max-height: 140px;
+    font-family: inherit;
+  }
+  textarea::placeholder { color: var(--text3); }
+
+  .icon-btn {
+    width: 34px; height: 34px;
+    border: none;
+    background: transparent;
+    color: var(--text2);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .icon-btn:hover { background: var(--border); color: var(--text); }
+  .icon-btn.send {
+    background: var(--accent);
+    color: #fff;
+  }
+  .icon-btn.send:hover { background: var(--accent2); }
+  .icon-btn.send:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; }
+  .icon-btn svg { width: 16px; height: 16px; }
+  #file-input { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">✦</div>
+  <h1>Form AI Assistant</h1>
+  <span class="sub" id="header-status">Ready</span>
+</header>
+
+<div class="main">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <label>Form</label>
+      <select id="form-select">
+        <option value="">— Select a form —</option>
+      </select>
+    </div>
+    <div class="sidebar-section" id="version-section" style="display:none">
+      <label>Version</label>
+      <select id="version-select">
+        <option value="">— Select version —</option>
+      </select>
+    </div>
+
+    <button class="btn-new" id="new-form-btn">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      Create New Form
+    </button>
+
+    <div class="components-area">
+      <div id="components-header" class="section-header" style="display:none">
+        Components <span class="count" id="comp-count">0</span>
+      </div>
+      <div id="components-body">
+        <div class="empty-state">
+          <div class="icon">◻</div>
+          Select a form to see its components
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <span style="font-size:13px; color:var(--text2);">Context:</span>
+      <div class="form-badge new-mode" id="context-badge">
+        ✦ New Form Mode
+      </div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="msg assistant">
+        <div class="msg-avatar">AI</div>
+        <div class="msg-content">
+          <p>Hello! I can help you create and manage forms. You can:</p>
+          <ul>
+            <li>Select an existing form from the sidebar to modify it</li>
+            <li>Ask me to create a completely new form</li>
+            <li>Attach images to your messages for context</li>
+          </ul>
+          <p>What would you like to do?</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <div class="image-preview-row" id="image-preview-row" style="display:none"></div>
+        <div class="text-row">
+          <textarea id="msg-input" rows="1" placeholder="Ask me to create or modify a form…" maxlength="4000"></textarea>
+          <input type="file" id="file-input" accept="image/*" multiple>
+          <button class="icon-btn" id="attach-btn" title="Attach image">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.5 8.5l-5 5A4 4 0 012 8L8.5 1.5A2.5 2.5 0 1112 5l-6.5 6.5A1 1 0 014 10l6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="icon-btn send" id="send-btn" disabled title="Send">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 8H2M8 2l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOL TOASTS CONTAINER -->
+<div class="tool-toasts" id="tool-toasts"></div>
+
+<script>
+const BASE_URL = 'http://localhost:8000';
+
+let allForms = {};   // { formId: { version: formData } }
+let selectedFormId = null;
+let selectedVersion = null;
+let isNewFormMode = true;
+let pendingImages = [];
+let isStreaming = false;
+
+const formSelect = document.getElementById('form-select');
+const versionSelect = document.getElementById('version-select');
+const versionSection = document.getElementById('version-section');
+const newFormBtn = document.getElementById('new-form-btn');
+const contextBadge = document.getElementById('context-badge');
+const messagesEl = document.getElementById('messages');
+const msgInput = document.getElementById('msg-input');
+const sendBtn = document.getElementById('send-btn');
+const attachBtn = document.getElementById('attach-btn');
+const fileInput = document.getElementById('file-input');
+const imagePreviewRow = document.getElementById('image-preview-row');
+const compCount = document.getElementById('comp-count');
+const compHeader = document.getElementById('components-header');
+const compBody = document.getElementById('components-body');
+const toolToasts = document.getElementById('tool-toasts');
+const headerStatus = document.getElementById('header-status');
+
+// Load forms on start
+async function loadForms() {
+  try {
+    const res = await fetch(`${BASE_URL}/get_all_form_details`);
+    const json = await res.json();
+    const data = json.data || json;
+    allForms = {};
+    if (Array.isArray(data)) {
+      data.forEach(item => {
+        Object.entries(item).forEach(([formId, versions]) => {
+          allForms[formId] = versions;
+        });
+      });
+    } else {
+      Object.entries(data).forEach(([formId, versions]) => {
+        allForms[formId] = versions;
+      });
+    }
+    populateFormDropdown();
+  } catch (e) {
+    headerStatus.textContent = 'API not reachable';
+  }
+}
+
+function populateFormDropdown() {
+  formSelect.innerHTML = '<option value="">— Select a form —</option>';
+  Object.entries(allForms).forEach(([formId, versions]) => {
+    const latestV = Object.keys(versions).sort((a,b) => b-a)[0];
+    const form = versions[latestV];
+    const opt = document.createElement('option');
+    opt.value = formId;
+    opt.textContent = form.title || form.name || formId;
+    formSelect.appendChild(opt);
+  });
+}
+
+function populateVersionDropdown(formId) {
+  versionSelect.innerHTML = '<option value="">— Select version —</option>';
+  if (!allForms[formId]) return;
+  const versions = Object.keys(allForms[formId]).sort((a,b) => b-a);
+  versions.forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = `Version ${v}`;
+    versionSelect.appendChild(opt);
+  });
+}
+
+function updateComponentsList(formId, version) {
+  if (!formId || version === null || version === '') {
+    compHeader.style.display = 'none';
+    compBody.innerHTML = '<div class="empty-state"><div class="icon">◻</div>Select a form and version to see components</div>';
+    return;
+  }
+  const form = allForms[formId]?.[version];
+  if (!form) return;
+  const components = form.components || [];
+  compHeader.style.display = 'flex';
+  compCount.textContent = components.length;
+  if (components.length === 0) {
+    compBody.innerHTML = '<div class="empty-state" style="padding:20px 0;">No components yet</div>';
+    return;
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'tags-wrap';
+  components.forEach(c => {
+    const tag = document.createElement('div');
+    tag.className = 'component-tag';
+    tag.innerHTML = `<div class="component-dot"></div>${c.label || c.key}`;
+    wrap.appendChild(tag);
+  });
+  compBody.innerHTML = '';
+  compBody.appendChild(wrap);
+}
+
+function updateContextBadge() {
+  if (isNewFormMode) {
+    contextBadge.className = 'form-badge new-mode';
+    contextBadge.textContent = '✦ New Form Mode';
+  } else {
+    const form = allForms[selectedFormId]?.[selectedVersion];
+    const name = form?.title || form?.name || selectedFormId;
+    contextBadge.className = 'form-badge';
+    contextBadge.textContent = `${name} · v${selectedVersion}`;
+  }
+}
+
+formSelect.addEventListener('change', () => {
+  selectedFormId = formSelect.value || null;
+  selectedVersion = null;
+  versionSelect.value = '';
+  if (selectedFormId) {
+    versionSection.style.display = 'block';
+    populateVersionDropdown(selectedFormId);
+    isNewFormMode = false;
+  } else {
+    versionSection.style.display = 'none';
+    isNewFormMode = true;
+  }
+  updateComponentsList(selectedFormId, selectedVersion);
+  updateContextBadge();
+});
+
+versionSelect.addEventListener('change', () => {
+  selectedVersion = versionSelect.value !== '' ? versionSelect.value : null;
+  updateComponentsList(selectedFormId, selectedVersion);
+  updateContextBadge();
+});
+
+newFormBtn.addEventListener('click', () => {
+  formSelect.value = '';
+  versionSelect.value = '';
+  versionSection.style.display = 'none';
+  selectedFormId = null;
+  selectedVersion = null;
+  isNewFormMode = true;
+  updateComponentsList(null, null);
+  updateContextBadge();
+  msgInput.focus();
+});
+
+// Image handling
+attachBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  Array.from(fileInput.files).forEach(file => {
+    pendingImages.push(file);
+    const reader = new FileReader();
+    reader.onload = e => addImageThumb(e.target.result, pendingImages.length - 1);
+    reader.readAsDataURL(file);
+  });
+  fileInput.value = '';
+  imagePreviewRow.style.display = pendingImages.length ? 'flex' : 'none';
+});
+
+function addImageThumb(src, idx) {
+  const thumb = document.createElement('div');
+  thumb.className = 'img-thumb';
+  thumb.dataset.idx = idx;
+  thumb.innerHTML = `<img src="${src}"><button class="remove" data-idx="${idx}">✕</button>`;
+  thumb.querySelector('.remove').addEventListener('click', (e) => {
+    const i = parseInt(e.target.dataset.idx);
+    pendingImages.splice(i, 1);
+    thumb.remove();
+    imagePreviewRow.style.display = pendingImages.length ? 'flex' : 'none';
+    rebuildThumbs();
+  });
+  imagePreviewRow.appendChild(thumb);
+}
+
+function rebuildThumbs() {
+  Array.from(imagePreviewRow.querySelectorAll('.img-thumb')).forEach((t, i) => {
+    t.dataset.idx = i;
+    t.querySelector('.remove').dataset.idx = i;
+  });
+}
+
+// Textarea auto-resize + send button enable
+msgInput.addEventListener('input', () => {
+  msgInput.style.height = 'auto';
+  msgInput.style.height = Math.min(msgInput.scrollHeight, 140) + 'px';
+  sendBtn.disabled = msgInput.value.trim() === '' || isStreaming;
+});
+
+msgInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (!sendBtn.disabled) sendMessage();
+  }
+});
+
+sendBtn.addEventListener('click', sendMessage);
+
+// Add message to chat
+function addMessage(role, contentHtml, isMarkdown = false) {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'user' ? 'You' : 'AI';
+  const content = document.createElement('div');
+  content.className = 'msg-content';
+  if (isMarkdown) {
+    content.innerHTML = marked.parse(contentHtml);
+  } else {
+    content.innerHTML = contentHtml;
+  }
+  div.appendChild(avatar);
+  div.appendChild(content);
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return content;
+}
+
+function addTypingIndicator() {
+  const div = document.createElement('div');
+  div.className = 'msg assistant';
+  div.id = 'typing-msg';
+  div.innerHTML = `<div class="msg-avatar">AI</div><div class="msg-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typing-msg');
+  if (el) el.remove();
+}
+
+function showToolToast(type, toolName, detail) {
+  const toast = document.createElement('div');
+  toast.className = `tool-toast ${type}`;
+  const icon = type === 'call' ? '⚙' : '✓';
+  const title = type === 'call' ? `Calling: ${toolName}` : `Done: ${toolName}`;
+  toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-body"><div class="toast-title">${title}</div><div class="toast-sub">${detail || ''}</div></div>`;
+  toolToasts.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3500);
+}
+
+function ingestFormData(output) {
+  if (!output || typeof output !== 'object') return;
+  Object.entries(output).forEach(([formId, versions]) => {
+    if (!allForms[formId]) allForms[formId] = {};
+    Object.entries(versions).forEach(([v, data]) => {
+      allForms[formId][v] = data;
+    });
+    // Update dropdowns
+    const existingOpt = formSelect.querySelector(`option[value="${formId}"]`);
+    const latestV = Object.keys(allForms[formId]).sort((a,b) => b-a)[0];
+    const form = allForms[formId][latestV];
+    if (!existingOpt) {
+      const opt = document.createElement('option');
+      opt.value = formId;
+      opt.textContent = form.title || form.name || formId;
+      formSelect.appendChild(opt);
+    }
+    formSelect.value = formId;
+    selectedFormId = formId;
+    populateVersionDropdown(formId);
+    versionSection.style.display = 'block';
+    const newV = Object.keys(allForms[formId]).sort((a,b) => b-a)[0];
+    selectedVersion = newV;
+    versionSelect.value = newV;
+    isNewFormMode = false;
+    updateComponentsList(formId, newV);
+    updateContextBadge();
+  });
+}
+
+async function sendMessage() {
+  const text = msgInput.value.trim();
+  if (!text || isStreaming) return;
+
+  isStreaming = true;
+  sendBtn.disabled = true;
+  headerStatus.textContent = 'Streaming…';
+
+  // Show user message
+  const userHtml = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  addMessage('user', userHtml);
+
+  // Clear input
+  msgInput.value = '';
+  msgInput.style.height = 'auto';
+
+  // Build form data
+  const fd = new FormData();
+  fd.append('message', text);
+  if (selectedFormId) fd.append('form_id', selectedFormId);
+  if (selectedVersion !== null && selectedVersion !== '') fd.append('version', selectedVersion);
+  pendingImages.forEach(img => fd.append('images', img));
+
+  // Clear image previews
+  pendingImages = [];
+  imagePreviewRow.innerHTML = '';
+  imagePreviewRow.style.display = 'none';
+
+  addTypingIndicator();
+
+  let assistantContent = document.createElement('div');
+  assistantContent.className = 'msg-content';
+  let rawText = '';
+  let msgDiv = null;
+
+  try {
+    const res = await fetch(`${BASE_URL}/chat`, { method: 'POST', body: fd });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let firstToken = true;
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const jsonStr = line.slice(6).trim();
+        if (!jsonStr) continue;
+        let obj;
+        try { obj = JSON.parse(jsonStr); } catch { continue; }
+
+        if (obj.type === 'llm') {
+          if (firstToken) {
+            removeTypingIndicator();
+            msgDiv = document.createElement('div');
+            msgDiv.className = 'msg assistant';
+            const av = document.createElement('div');
+            av.className = 'msg-avatar';
+            av.textContent = 'AI';
+            msgDiv.appendChild(av);
+            msgDiv.appendChild(assistantContent);
+            messagesEl.appendChild(msgDiv);
+            firstToken = false;
+          }
+          rawText += obj.content;
+          assistantContent.innerHTML = marked.parse(rawText);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+
+        } else if (obj.type === 'tool_call') {
+          const detail = obj.input ? (typeof obj.input === 'object' ? Object.keys(obj.input).join(', ') : String(obj.input)) : '';
+          showToolToast('call', obj.tool, detail);
+
+        } else if (obj.type === 'tool_result') {
+          showToolToast('result', obj.tool, 'Form data updated');
+          if (obj.output) ingestFormData(obj.output);
+        }
+      }
+    }
+
+    if (firstToken) {
+      removeTypingIndicator();
+      addMessage('assistant', '<em style="color:var(--text3)">No response</em>');
+    }
+  } catch (err) {
+    removeTypingIndicator();
+    addMessage('assistant', `<span style="color:var(--red)">Error: ${err.message}</span>`);
+  }
+
+  isStreaming = false;
+  sendBtn.disabled = msgInput.value.trim() === '';
+  headerStatus.textContent = 'Ready';
+}
+
+loadForms();
+</script>
+</body>
+</html>

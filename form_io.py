@@ -71,14 +71,17 @@ def get_versioned_form_data():
     return data
 
 def add_versioned_form(form_id, version, new_form):
-    with open("form_data.json") as f:
-        data = json.load(f)
-        
-    data = data if data else []
+
+    try:
+        with open("form_data.json") as f:
+            data = json.load(f)
+    except json.decoder.JSONDecodeError as e:
+        data = []
+
     new_form_body = {form_id: {version: new_form}}
     data.append(new_form_body)
 
-    with open("data.json", "w") as f:
+    with open("form_data.json", "w") as f:
         json.dump(data, f, indent=4)
     return new_form_body
 
@@ -90,7 +93,7 @@ def update_versioned_form(form_id, version, updated_form):
     if index is not None:
         data[index][version] = updated_form
 
-        with open("data.json", "w") as f:
+        with open("form_data.json", "w") as f:
             json.dump(data, f, indent=4)
         return True
     else:

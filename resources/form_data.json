@@ -1,0 +1,710 @@
+[
+    {
+        "69f9dad3946d4fb659ffb842": {
+            "1": {
+                "_id": "69f9dad3946d4fb659ffb842",
+                "title": "Contact Form",
+                "name": "contactForm",
+                "path": "contact",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "fullName",
+                        "label": "Full Name",
+                        "placeholder": "Enter your full name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "mobileNumber",
+                        "label": "Mobile Number",
+                        "placeholder": "Enter your mobile number",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    }
+                ],
+                "pdfComponents": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "created": "2026-05-05T11:56:03.845Z",
+                "modified": "2026-05-05T11:56:03.847Z",
+                "machineName": "contactForm"
+            }
+        }
+    },
+    {
+        "69f9ddd0946d4fb659ffb883": {
+            "1": {
+                "_id": "69f9ddd0946d4fb659ffb883",
+                "title": "Personal Information Form",
+                "name": "personalInfoForm",
+                "path": "personal-info",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "fullName",
+                        "label": "Full Name",
+                        "placeholder": "Enter your full name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "age",
+                        "label": "Age",
+                        "placeholder": "Enter your age",
+                        "type": "number",
+                        "validate": {
+                            "required": true
+                        }
+                    }
+                ],
+                "pdfComponents": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "created": "2026-05-05T12:08:48.170Z",
+                "modified": "2026-05-05T12:08:48.173Z",
+                "machineName": "personalInfoForm"
+            }
+        }
+    },
+    {
+        "69f9de39946d4fb659ffb89b": {
+            "1": {
+                "_id": "69f9de39946d4fb659ffb89b",
+                "title": "Person Information Form",
+                "name": "personInfoForm",
+                "path": "person-info",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "name",
+                        "label": "Name",
+                        "placeholder": "Enter your full name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "gender",
+                        "label": "Gender",
+                        "placeholder": "Enter your gender",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "age",
+                        "label": "Age",
+                        "placeholder": "Enter your age",
+                        "type": "number",
+                        "validate": {
+                            "required": true
+                        }
+                    }
+                ],
+                "pdfComponents": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "created": "2026-05-05T12:10:33.061Z",
+                "modified": "2026-05-05T12:10:33.063Z",
+                "machineName": "personInfoForm"
+            }
+        }
+    },
+    {
+        "69f9e386946d4fb659ffb8d1": {
+            "1": {
+                "_id": "69f9e386946d4fb659ffb8d1",
+                "title": "Survey Form",
+                "name": "surveyForm",
+                "path": "survey",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "name",
+                        "label": "Name",
+                        "placeholder": "Enter your name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "rating",
+                        "label": "Rating",
+                        "options": [
+                            {
+                                "label": "Excellent",
+                                "value": "excellent"
+                            },
+                            {
+                                "label": "Good",
+                                "value": "good"
+                            },
+                            {
+                                "label": "Average",
+                                "value": "average"
+                            },
+                            {
+                                "label": "Poor",
+                                "value": "poor"
+                            },
+                            {
+                                "label": "Very Poor",
+                                "value": "very_poor"
+                            }
+                        ],
+                        "placeholder": "Select a rating",
+                        "type": "select",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "feedback",
+                        "label": "Additional Feedback",
+                        "placeholder": "Share your thoughts...",
+                        "type": "textarea"
+                    }
+                ],
+                "pdfComponents": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "created": "2026-05-05T12:33:10.523Z",
+                "modified": "2026-05-05T12:33:10.525Z",
+                "machineName": "surveyForm"
+            },
+            "2": {
+                "title": "Survey Form",
+                "name": "surveyForm",
+                "path": "survey",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "name",
+                        "label": "Name",
+                        "placeholder": "Enter your name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "rating",
+                        "label": "Rating",
+                        "options": [
+                            {
+                                "label": "Excellent",
+                                "value": "excellent"
+                            },
+                            {
+                                "label": "Good",
+                                "value": "good"
+                            },
+                            {
+                                "label": "Average",
+                                "value": "average"
+                            },
+                            {
+                                "label": "Poor",
+                                "value": "poor"
+                            },
+                            {
+                                "label": "Very Poor",
+                                "value": "very_poor"
+                            }
+                        ],
+                        "placeholder": "Select a rating",
+                        "type": "select",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "site_visited",
+                        "label": "Site Visited",
+                        "placeholder": "Enter the website URL visited",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "feedback",
+                        "label": "Additional Feedback",
+                        "placeholder": "Share your thoughts...",
+                        "type": "textarea"
+                    }
+                ],
+                "pdfComponents": [],
+                "_id": "69f9e386946d4fb659ffb8d1",
+                "created": "2026-05-05T12:33:10.523Z",
+                "modified": "2026-05-05T12:35:58.243Z",
+                "machineName": "surveyForm"
+            }
+        }
+    },
+    {
+        "69f9e4da946d4fb659ffb91c": {
+            "1": {
+                "_id": "69f9e4da946d4fb659ffb91c",
+                "title": "Request Booking",
+                "name": "requestbooking",
+                "path": "requestbooking",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "firstName",
+                        "label": "First name",
+                        "placeholder": "Enter your first name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "lastName",
+                        "label": "Last name",
+                        "placeholder": "Enter your last name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "phone",
+                        "label": "Phone",
+                        "placeholder": "Enter your phone number",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "day",
+                        "label": "Day",
+                        "type": "number",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "month",
+                        "label": "Month",
+                        "options": [
+                            {
+                                "label": "January",
+                                "value": "1"
+                            },
+                            {
+                                "label": "February",
+                                "value": "2"
+                            },
+                            {
+                                "label": "March",
+                                "value": "3"
+                            },
+                            {
+                                "label": "April",
+                                "value": "4"
+                            },
+                            {
+                                "label": "May",
+                                "value": "5"
+                            },
+                            {
+                                "label": "June",
+                                "value": "6"
+                            },
+                            {
+                                "label": "July",
+                                "value": "7"
+                            },
+                            {
+                                "label": "August",
+                                "value": "8"
+                            },
+                            {
+                                "label": "September",
+                                "value": "9"
+                            },
+                            {
+                                "label": "October",
+                                "value": "10"
+                            },
+                            {
+                                "label": "November",
+                                "value": "11"
+                            },
+                            {
+                                "label": "December",
+                                "value": "12"
+                            }
+                        ],
+                        "type": "select",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "year",
+                        "label": "Year",
+                        "type": "number",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "time",
+                        "label": "Time",
+                        "type": "time"
+                    },
+                    {
+                        "input": true,
+                        "key": "seatingPreference",
+                        "label": "Seating preference",
+                        "options": [
+                            {
+                                "label": "Indoor",
+                                "value": "indoor"
+                            },
+                            {
+                                "label": "Outdoor",
+                                "value": "outdoor"
+                            }
+                        ],
+                        "type": "radio",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "additionalRequests",
+                        "label": "Additional requests",
+                        "placeholder": "Enter your additional requests",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "newsletter",
+                        "label": "Yes, subscribe me to your newsletter.",
+                        "type": "checkbox"
+                    },
+                    {
+                        "action": "submit",
+                        "input": true,
+                        "key": "submit",
+                        "label": "Request booking",
+                        "theme": "primary",
+                        "type": "button"
+                    }
+                ],
+                "pdfComponents": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "created": "2026-05-05T12:38:50.105Z",
+                "modified": "2026-05-05T12:38:50.106Z",
+                "machineName": "requestbooking"
+            }
+        }
+    },
+    {
+        "69fb4198a26fc6496969a6a3": {
+            "1": {
+                "_id": "69fb4198a26fc6496969a6a3",
+                "title": "Student Maths Marks Form",
+                "name": "studentMathsMarks",
+                "path": "student-maths-marks",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "studentName",
+                        "label": "Student Name",
+                        "placeholder": "Enter student's full name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "mathsMarks",
+                        "label": "Maths Marks (out of 100)",
+                        "placeholder": "Enter marks out of 100",
+                        "type": "number",
+                        "validate": {
+                            "max": 100,
+                            "min": 0,
+                            "required": true
+                        }
+                    }
+                ],
+                "pdfComponents": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "created": "2026-05-06T13:26:48.908Z",
+                "modified": "2026-05-06T13:26:48.914Z",
+                "machineName": "studentMathsMarks"
+            }
+        }
+    },
+    {
+        "69fb4249a26fc6496969a6fc": {
+            "1": {
+                "_id": "69fb4249a26fc6496969a6fc",
+                "title": "Contact Request Form",
+                "name": "contactRequest",
+                "path": "contact-request",
+                "type": "form",
+                "display": "form",
+                "tags": [],
+                "owner": "69f9d3a0946d4fb659ffb801",
+                "components": [
+                    {
+                        "input": true,
+                        "key": "firstName",
+                        "label": "First name",
+                        "placeholder": "Enter your first name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "lastName",
+                        "label": "Last name",
+                        "placeholder": "Enter your last name",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "phone",
+                        "label": "Phone",
+                        "placeholder": "Enter your phone number",
+                        "type": "textfield"
+                    },
+                    {
+                        "input": true,
+                        "key": "day",
+                        "label": "Day",
+                        "placeholder": "Day",
+                        "type": "number",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "data": [
+                            "January",
+                            "February",
+                            "March",
+                            "April",
+                            "May",
+                            "June",
+                            "July",
+                            "August",
+                            "September",
+                            "October",
+                            "November",
+                            "December"
+                        ],
+                        "input": true,
+                        "key": "month",
+                        "label": "Month",
+                        "type": "dropdown",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "year",
+                        "label": "Year",
+                        "placeholder": "Year",
+                        "type": "number",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "time",
+                        "label": "Time",
+                        "placeholder": "HH:MM",
+                        "type": "textfield",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "seatingPreference",
+                        "label": "Seating preference",
+                        "options": [
+                            "Indoor",
+                            "Outdoor"
+                        ],
+                        "type": "radio",
+                        "validate": {
+                            "required": true
+                        }
+                    },
+                    {
+                        "input": true,
+                        "key": "additionalRequests",
+                        "label": "Additional requests",
+                        "type": "textarea"
+                    },
+                    {
+                        "input": true,
+                        "key": "newsletterSubscribe",
+                        "label": "Yes, subscribe me to your newsletter.",
+                        "type": "checkbox",
+                        "validate": {
+                            "required": false
+                        }
+                    }
+                ],
+                "pdfComponents": [],
+                "access": [
+                    {
+                        "type": "read_all",
+                        "roles": [
+                            "69f9d3a0946d4fb659ffb78a",
+                            "69f9d3a0946d4fb659ffb793",
+                            "69f9d3a0946d4fb659ffb79e"
+                        ]
+                    }
+                ],
+                "submissionAccess": [],
+                "created": "2026-05-06T13:29:45.960Z",
+                "modified": "2026-05-06T13:29:45.963Z",
+                "machineName": "contactRequest"
+            }
+        }
+    }
+]

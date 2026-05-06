@@ -1,25 +1,133 @@
-# ConversationalFormBuilder — Setup Guide
+# ConversationalFormBuilder
 
-A conversational AI-powered form builder that uses a local LLM (via Ollama) as its inference backend and Form.io as the form engine.
+An AI-powered, conversational, fully functional, editable form builder using Form.io-compatible schema, powered by a self-
+hosted LLM.
 
 ---
 
-## Prerequisites
+## Architecture Diagram
 
-- [Docker](https://www.docker.com/) installed and running
-- [Git](https://git-scm.com/) installed
+![Architecture Diagram](resources/system_architecture.png)
+
+---
+<p>User sends request to the server from Browser. If the user is requesting new form, it is send directly to the agent for creating the form and then store the versioned form. If it is a request for editing a versioned form, the request firstly updates that version of form in the form.io and then sends the modification request to the agent and then store the updated version in the data storage.</p>
+
+## Data Flow Diagram
+
+![Data Flow Diagram](resources/data_flow_diagram.png)
+
+---
+
+## API Reference
+
+### `GET /get_all_form_details`
+
+Returns all forms currently stored, including their full version history.
+
+**Response**
+
+```json
+{
+    "data": [
+        {
+            "69f9dad394........": {
+                "1": {
+                    "_id": "69f9dad394........",
+                    "title": <title_of_the_form>,
+                    "name": <name_of_the_form>,
+                    "path": <path_to_the_form>,
+                    "type": <tpe_of_the_form>,
+                    "display": "form",
+                    "tags": [],
+                    "owner": "69f9d3a0946.........",
+                    "components": [
+                        {
+                            "input": <bool>,
+                            "key": <name>,
+                            "label": <lable_name>,
+                            .
+                            .
+                        }
+                    .
+                    .
+                }
+            .
+            .
+            }
+        }
+    ]
+}
+```
+
+---
+
+### `POST /chat`
+
+The core conversational endpoint. Accepts a natural language message (with optional images) and streams back the agent's response as Server-Sent Events (SSE).
+
+**Request** — `multipart/form-data`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `message` | `string` | ✅ | The user's natural language instruction |
+| `form_id` | `string` | ❌ | ID of an existing form to edit |
+| `version` | `integer` | ❌ | If provided, rolls the form back to this version before processing |
+| `images` | `file[]` | ❌ | images to attach as context (e.g. a picture or screenshot) |
+
+**Streaming Response** — `text/event-stream`
+
+Each SSE event carries a JSON payload with a `type` field:
+
+| `type` | Description | Example payload |
+|---|---|---|
+| `llm` | A streaming token from the LLM | `{ "type": "llm", "content": "Sure" }` |
+| `tool_call` | The agent is invoking a tool | `{ "type": "tool_call", "tool": "create_form", "input": {...} }` |
+| `tool_result` | Result after a tool finishes | `{ "type": "tool_result", "tool": "create_form", "output": {...} }` |
+
+**Example — create a new form**
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -F "message=Create a contact form with name, email, and a message field"
+```
+
+**Example — edit an existing form**
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -F "message=Add a phone number field" \
+  -F "form_id=abc123" \
+  -F "version=2"
+```
+
+**Example — send an image mockup**
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -F "message=Build a form that matches this mockup" \
+  -F "images=@mockup.png"
+```
+
+> **Versioning note:** When `version` is supplied, the backend rolls the specified form back to that version before passing the request to the agent, allowing you to branch from any point in a form's history.
+
+---
+
+## Setup Guide
+
+ConversationalFormBuilder uses a local LLM via [Ollama](https://ollama.com) as its inference backend and [Form.io](https://github.com/formio/formio) as the form engine.
+
+### Prerequisites
+
+- Docker installed and running
+- Git
 - Python 3.11+
 - A modern web browser
 
 ---
 
-## Step 1 — Run Form.io with Docker
+### Step 1 — Run Form.io with Docker
 
-Follow the official Form.io self-hosted setup using Docker:
-
-👉 [https://github.com/formio/formio](https://github.com/formio/formio)
-
-The quickest way to get Form.io running locally is via Docker Compose. Clone the Form.io repo and follow their Docker instructions to spin up the API server and MongoDB instance.
+Follow the official Form.io self-hosted setup:
 
 ```bash
 git clone https://github.com/formio/formio.git
@@ -27,11 +135,11 @@ cd formio
 # Follow the Docker setup instructions in their README
 ```
 
-Make sure Form.io is up and accessible (typically at `http://localhost:3001`) before proceeding.
+Make sure Form.io is accessible at `http://localhost:3001` before continuing.
 
 ---
 
-## Step 2 — Clone This Repository
+### Step 2 — Clone This Repository
 
 ```bash
 git clone https://github.com/thor-x-me/ConversationalFormBuilder_ooru_assignment.git
@@ -40,41 +148,25 @@ cd ConversationalFormBuilder_ooru_assignment
 
 ---
 
-## Step 3 — Install Ollama
+### Step 3 — Install Ollama
 
-Download and install Ollama for your operating system:
-
-👉 [https://ollama.com/download](https://ollama.com/download)
-
-Follow the installer instructions for your platform (macOS, Linux, or Windows).
-
----
-
-## Step 4 — Pull the Model & Verify Inference
-
-Pull the `qwen3.5:latest` model and verify that inference is working:
+Download and install Ollama from [ollama.com/download](https://ollama.com/download), then pull the required model (I am using qwen3.5 here):
 
 ```bash
 ollama run qwen3.5:latest
 ```
 
-Once the model loads, type a test prompt in the interactive session to confirm it responds correctly. Press `Ctrl+D` or type `/bye` to exit.
+Type a test prompt to confirm inference is working, then exit with `Ctrl+D` or `/bye`.
 
 ---
 
-## Step 5 — Set Up Python Environment
-
-Create a virtual environment and install all dependencies:
+### Step 4 — Set Up Python Environment
 
 ```bash
-# Create virtual environment
+# Create and activate a virtual environment
 python -m venv venv
-
-# Activate it
-# On macOS/Linux:
-source venv/bin/activate
-# On Windows:
-venv\Scripts\activate
+source venv/bin/activate        # macOS / Linux
+# venv\Scripts\activate         # Windows
 
 # Install dependencies
 pip install -r requirements.txt
@@ -82,48 +174,45 @@ pip install -r requirements.txt
 
 ---
 
-## Step 6 — Run the Backend Server
-
-Start the FastAPI backend using Uvicorn:
+### Step 5 — Run the Backend
 
 ```bash
-uvicorn app:app --reload
+uvicorn app:app
 ```
 
-The server runs at **`http://localhost:8000`** by default.
+The API will be available at `http://localhost:8000`.
 
-> ⚠️ **Changing the port:** If you need to use a different port, update the port number in both the Uvicorn command **and** the frontend file to keep them in sync.
+> If you change the port, make sure to update the frontend's API base URL to match.
 
 ---
 
-## Step 7 — Open the Frontend
+### Step 6 — Open the Frontend
 
-Open the frontend HTML file directly in your browser:
-
-```
-frontend/index.html   (or whichever path applies in this repo)
-```
-
-You can simply double-click the file in your file explorer, or open it via your browser's **File → Open** menu.
-
-Once open, you're all set — start building forms conversationally! 🎉
+Open `frontend/index.html` directly in your browser (double-click or use **File → Open**). No build step required.
 
 ---
 
-## Quick Reference
+### Quick Reference
 
-| Component     | Default URL                  |
-|---------------|------------------------------|
-| Form.io API   | `http://localhost:3001`      |
-| Backend API   | `http://localhost:8000`      |
-| Ollama        | `http://localhost:11434`     |
-| Frontend      | Open `chatbot_frontend.html` in browser |
+| Component | Default URL |
+|---|---|
+| Form.io API | http://localhost:3001 |
+| Backend API | http://localhost:8000 |
+| Ollama | http://localhost:11434 |
+| Frontend | Open `chatbot_frontend.html` in browser |
 
 ---
 
-## Troubleshooting
+### Troubleshooting
 
-- **Ollama not responding?** Make sure the Ollama service is running in the background (`ollama serve`).
-- **Backend 500 errors?** Confirm the model name in your code matches exactly: `qwen3.5:latest`.
-- **Form.io connection issues?** Ensure Docker containers are running (`docker ps`) and Form.io is healthy before starting the backend.
-- **Port conflicts?** Change the port in both `uvicorn` startup command and the frontend's API base URL.
+**Ollama not responding?**  
+Make sure the Ollama service is running: `ollama serve`
+
+**Backend 500 errors?**  
+Confirm the model name in your code matches exactly: `qwen3.5:latest`
+
+**Form.io connection issues?**  
+Check that Docker containers are healthy with `docker ps` before starting the backend.
+
+**Port conflicts?**  
+Update the port in both the `uvicorn` startup command and the frontend's API base URL.

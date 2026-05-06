@@ -8,8 +8,11 @@ PASSWORD = "CHANGEME"
 FORM_VERSIONED = "resources/form_data.json"
 
 def get_versioned_form_data():
-    with open(FORM_VERSIONED) as f:
-        data = json.load(f)
+    try:
+        with open(FORM_VERSIONED) as f:
+            data = json.load(f)
+    except json.decoder.JSONDecodeError as e:
+        data = []
     return data
 
 def add_versioned_form(form_id, version, new_form):

@@ -50,6 +50,7 @@ Returns all forms currently stored, including their full version history.
                         }
                     .
                     .
+                    ]
                 }
             .
             .
